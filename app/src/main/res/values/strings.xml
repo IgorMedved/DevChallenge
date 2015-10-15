@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello beautiful android world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_view_photo_thumbnail">ViewPhotoThumbnailActivity</string>
+    <string name="title_activity_custom_uri_generator">CustomUriGeneratorActivity</string>
 </resources>

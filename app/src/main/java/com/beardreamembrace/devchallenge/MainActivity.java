@@ -1,18 +1,54 @@
 package com.beardreamembrace.devchallenge;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity
 {
+    private static final String LOG_TAG = "MainActivity";
+
+
+    Button btnDefaultSearch;
+    Button btnCustomSearch;
+
+
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        btnDefaultSearch = (Button)findViewById(R.id.btnDefaultSearch);
+        btnCustomSearch = (Button)findViewById(R.id.btnCustomSearch);
+
+        btnDefaultSearch.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick (View v)
+            {
+                Intent intent = new Intent (MainActivity.this, ViewPhotoThumbnailActivity.class);
+                startActivity (intent);
+
+            }
+        });
+
+        btnCustomSearch.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick (View v)
+            {
+                Intent intent = new Intent (MainActivity.this, CustomUriGeneratorActivity.class);
+                startActivity (intent);
+            }
+        });
+
+
+
     }
 
     @Override
@@ -39,4 +75,6 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

@@ -1,0 +1,28 @@
+TASK com.beardreamembrace.devchallenge id=442
+  ACTIVITY com.beardreamembrace.devchallenge/.MainActivity 2898ea82 pid=4335
+    Local FragmentActivity 202d6474 State:
+      mCreated=truemResumed=true mStopped=false mReallyStopped=false
+      mLoadersStarted=true
+    FragmentManager misc state:
+      mActivity=com.beardreamembrace.devchallenge.MainActivity@202d6474
+      mContainer=android.support.v4.app.FragmentActivity$2@3653576e
+      mCurState=5 mStateSaved=false mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{1333ee0f V.E..... ... 0,0-1280,768}
+        android.widget.LinearLayout{2e3f1e9c V.E..... ... 0,0-1196,768}
+          android.view.ViewStub{34dbc0a5 G.E..... ... 0,0-0,0 #1020373}
+          android.widget.FrameLayout{1ae17c7a V.E..... ... 0,50-1196,768}
+            android.support.v7.internal.widget.ActionBarOverlayLayout{264b5c2b V.E..... ... 0,0-1196,718 #7f0c003f app:id/decor_content_parent}
+              android.support.v7.internal.widget.ContentFrameLayout{386d8888 V.E..... ... 0,96-1196,718 #1020002 android:id/content}
+                android.widget.RelativeLayout{76cc221 V.E..... ... 0,0-1196,622}
+                  android.widget.ImageView{12fae646 V.ED.... ... 0,0-1196,622}
+                  android.support.v7.widget.AppCompatTextView{27219007 V.ED.... ... 0,0-1196,171}
+                  android.support.v7.widget.AppCompatButton{f96a534 VFED..C. ... 439,263-757,359 #7f0c0052 app:id/btnDefaultSearch}
+                  android.support.v7.widget.AppCompatButton{3b25f5d VFED..C. ... 435,359-760,455 #7f0c0053 app:id/btnCustomSearch}
+              android.support.v7.internal.widget.ActionBarContainer{aef20d2 V.ED.... ... 0,0-1196,96 #7f0c0040 app:id/action_bar_container}
+                android.support.v7.widget.Toolbar{383d25a3 V.E..... ... 0,0-1196,96 #7f0c0041 app:id/action_bar}
+                  android.widget.TextView{1292e0a0 V.ED.... ... 32,29-204,67}
+                  android.support.v7.widget.ActionMenuView{4ba9459 V.E..... ... 1116,0-1196,96}
+                    android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton{327a781e VFED..C. ... 0,0-80,96}
+                android.support.v7.internal.widget.ActionBarContextView{13f278ff G.E..... ... 0,0-0,0 #7f0c0042 app:id/action_context_bar}
+        android.view.View{335566cc V.ED.... ... 0,0-1280,50 #102002f android:id/statusBarBackground}

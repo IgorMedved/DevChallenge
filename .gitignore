@@ -22,6 +22,10 @@ local.properties
 .metadata
 .settings
 
+# Consumer Key info
+consumerkey.txt
+consumerkey.java
+ 
 # IntelliJ files
 .idea
 *.iml
