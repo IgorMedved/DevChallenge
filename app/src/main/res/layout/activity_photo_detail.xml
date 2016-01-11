@@ -7,15 +7,14 @@
     >
 
 
-    <view android:id = "@+id/recycler_view"
+    <view android:id = "@+id/recyclerDetailed"
 
           android:layout_width ="match_parent"
           android:layout_height="wrap_content"
           android:scrollHorizontally="true"
 
-          android:layout_marginBottom="10dp"
-          android:layout_marginRight = "10dp"
-          class ="android.support.v7.widget.RecyclerView" />
+
+          class ="com.beardreamembrace.devchallenge.SnappingRecyclerView" />
 
 
 

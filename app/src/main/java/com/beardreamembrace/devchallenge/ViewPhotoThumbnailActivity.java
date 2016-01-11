@@ -1,51 +1,43 @@
 package com.beardreamembrace.devchallenge;
 
 import android.content.Intent;
-import android.graphics.Point;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-public class ViewPhotoThumbnailActivity extends AppCompatActivity
+public class ViewPhotoThumbnailActivity extends BasePhotoActivity
 {
     private static String LOG_TAG = ViewPhotoThumbnailActivity.class.getSimpleName();
-    private List<Photo> mPhotoList; //= new ArrayList<Photo>();
-    private RecyclerView mRecyclerView;
+    public static String MY_INTENT = ViewPhotoThumbnailActivity.class.getSimpleName();
+    //= new ArrayList<Photo>();
+    private BaseRecyclerView mRecyclerView;
     private GridLayoutManager mLayoutManager;
     private Px500RecyclerViewAdapter px500RecyclerViewAdapter;
-    private ArrayList<String> uriParameters;
+    //private ArrayList<String> uriParameters;
     private PhotosPerScreen mPhotosPerScreen;
     private boolean loading = true;
     private int previousTotal = 0;
     private int currentPageNumber;
 
+
     @Override
-    protected void onCreate (Bundle savedInstanceState)
+    public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thumbnail);
 
+        previousTotal = 0;
 
-        Bundle extras = getIntent().getExtras();
+        int position  = resolveIntent();
 
-        if (extras != null) // if the application launched by intent from custom Uri
-        {
-            Log.v(LOG_TAG, "initialized uri parameters correctly");
-            uriParameters = extras.getStringArrayList("uriParameters");
 
-        }
-        else
-            uriParameters = Uri500BuildHelper.createDefaultParamList();
 
         if (savedInstanceState != null) // if the screen rotated
         {
@@ -58,12 +50,12 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
         {
             mPhotosPerScreen = new PhotosPerScreen(uriParameters.get(8));
         }
-        final int VISIBLE_THRESHOLD = mPhotosPerScreen.getPhotosPerScreen() * 3;
+        final int VISIBLE_THRESHOLD = mPhotosPerScreen.getPhotosOnScreen() * 3;
 
         uriParameters.set(7, Integer.toString(VISIBLE_THRESHOLD));
         currentPageNumber = uriParameters.get(6).equals("") ? 1 : Integer
                 .parseInt(uriParameters.get(6));
-        Log.v(LOG_TAG, "photos per Screen " + mPhotosPerScreen.getPhotosPerScreen());
+        Log.v(LOG_TAG, "photos per Screen " + mPhotosPerScreen.getPhotosOnScreen());
 
 
         if (mPhotoList == null)
@@ -79,13 +71,19 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
         //
 
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerThumbnail);
-        mLayoutManager = new GridLayoutManager(this, mPhotosPerScreen.getPhotosPerWidth());
+        mRecyclerView = (BaseRecyclerView) findViewById(R.id.recyclerThumbnail);
+        if (Photo.isCroppedSize(uriParameters.get(8)))
+            mLayoutManager = new GridLayoutManager(this, mPhotosPerScreen.getPhotosPerWidth());
+        else
+
+            mLayoutManager = new GridLayoutManager(this, Resources.getSystem().getDisplayMetrics().widthPixels);
+        if (position!=-1)
+            mLayoutManager.scrollToPosition(position);
         mRecyclerView.setLayoutManager(mLayoutManager);
         px500RecyclerViewAdapter = new Px500RecyclerViewAdapter(ViewPhotoThumbnailActivity.this, mPhotoList);
+        initializeBaseAdapter(px500RecyclerViewAdapter, mPhotoList);
+ //       Log.v (LOG_TAG, mPhotoList.get(0).toString());
         mRecyclerView.setAdapter(px500RecyclerViewAdapter);
-
-
 
 
         //GetRawData theRawData = new GetRawData("https://api.500px.com/v1/photos/?feature=popular&sort=created_at&page=2&rpp=2000&image_size=3&include_store=store_download&include_states=voted&consumer_key=medSwpC55WlYiLlQr3JxRkDkQD7OnUDDk2RLEpZQ");
@@ -99,11 +97,37 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
 
     }
 
+    public int getCurrentPageNumber ()
+    {
+        return currentPageNumber;
+    }
+
+    public PhotosPerScreen getPhotosPerScreen ()
+    {
+
+        return mPhotosPerScreen;
+    }
+
+    public void launchIntent (int position)
+    {
+        Intent intent = new Intent(ViewPhotoThumbnailActivity.this, PhotoDetailActivity.class);
+        intent.putExtra("savedPhotoList", (Serializable) (mPhotoList));
+        intent.putExtra("savedCurrentPage", currentPageNumber);
+        intent.putExtra("savedPhotosPerScreen", mPhotosPerScreen);
+        intent.putExtra("savedAdapterPosition", position);
+        intent.putExtra("savedUriParameters", uriParameters);
+        intent.putExtra("savedPreviousTotal", previousTotal);
+        intent.putExtra ("UniqueId", MY_INTENT);
+        startActivity(intent);
+    }
+
     @Override
     public void onResume ()
     {
         super.onResume();
-        final int VISIBLE_THRESHOLD = mPhotosPerScreen.getPhotosPerScreen()*3;
+        final int VISIBLE_THRESHOLD = mPhotosPerScreen.getPhotosOnScreen() * 3;
+
+        mAdapter.setMyListener(mRecyclerView);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
 
@@ -146,112 +170,43 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
 
         });
 
-        mRecyclerView.setOnClickListener(new View.OnClickListener()
+        if (!Photo.isCroppedSize(uriParameters.get(8)))
         {
-            @Override
-            public void onClick (View v)
+            mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver()
             {
-
-                Intent intent = new Intent (ViewPhotoThumbnailActivity.this,PhotoDetailActivity.class );
-                intent.putExtra ("savedPhotoList", (Serializable)(px500RecyclerViewAdapter.getPhotos()));
-                intent.putExtra ("savedCurrentPage", currentPageNumber);
-                intent.putExtra ("savedPhotosPerScreen", mPhotosPerScreen.getPhotosPerScreen());
-                intent.putExtra ("savedAdapterPosition", )
-                startActivity(intent);
-
-
-
-            }
-        });
-    }
-    class PhotosPerScreen implements Serializable
-    {
-        private int photosPerWidth;
-        private int photosPerHeight;
-
-
-        private Point size;
-        private String cropSize;
-
-        public PhotosPerScreen (String cropSize)
-        {
-            Display display = getWindowManager().getDefaultDisplay();
-            size = new Point();
-            display.getSize(size);
-
-
-            // case 1: screenWidth = 0 not initialized
-            // do get screenWidth and cropSize and calculate other parameters based on it
-
-            // case 2 screenWidth != this screen width recalculate everything
-
-            // case 3 cropSize changed
-
-            // case 4 screenWidth and cropSize are same as befor - no need to do anything
-            int photoWidth=0;
-            int photoHeight = 0;
-
-            if (mPhotoList != null && mPhotoList.size() != 0)
-            {
-                this.cropSize = mPhotoList.get(0).getCropSize();
-                switch (this.cropSize)
+                @Override
+                public void onChanged ()
                 {
-                case "20":
 
 
-                case "21":
-                    for (int i = 0; i < mPhotoList.size(); i++)
-                        if (photoWidth < mPhotoList.get(i).getPhotoWidth())
-                             photoWidth = mPhotoList.get(i).getPhotoWidth();
+                   /*for (int i = 0; i < mPhotoList.size(); i++)
+                    {
+                        Log.v(LOG_TAG, "Photo " + i + "\twidth: " + getSpanLookupList().get(i).getWidth() + "\theight "+ getSpanLookupList().get(i).getHeight());
+                        Log.v(LOG_TAG, "Photo " + i + "\twidht: " + mPhotoList.get(i).getWidth() + "\theight " +mPhotoList.get(i).getHeight());
 
+                    }*/
+                    if (mPhotoList.size()== mAdapter.getItemCount())
+                    {
+                        Log.v (LOG_TAG, "Second call");
+                    }
+                    else
+                    {
+                        Log.v(LOG_TAG, "Right call");
 
-                    break;
-                default:
-                    photoWidth = mPhotoList.get(0).getPhotoWidth();
+                        mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                            @Override
+                            public int getSpanSize(int position) {
+                                return getSpanLookupList().get(position).getWidth();
+                            }
+                        });
+                    }
+
                 }
-                photoHeight = mPhotoList.get(0).getPhotoHeight();
-
-            }
-            else
-            {
-                this.cropSize = cropSize;
-                Photo temp = new Photo(null, null, null, null, null, this.cropSize, "1", "1");
-                photoWidth = temp.getPhotoWidth();
-                photoHeight = temp.getPhotoHeight();
-
-            }
-
-            photosPerWidth = (size.x - (size.x / photoWidth + 1) * 10) / photoWidth; // size.x- screen width;
-
-            photosPerHeight = (size.y - (size.y / photoHeight + 1) * 10) / photoHeight; //size.y - screen height
-
-            Log.v(LOG_TAG, "photosPerWidt " + photosPerWidth + " photos width " + photoWidth + " photos per Height " + photosPerHeight);
-
-            photosPerWidth = photosPerWidth == 0 ? 1 : photosPerWidth;
-            photosPerHeight = photosPerHeight == 0 ? 1 : photosPerHeight;
-
-
+            });
         }
 
-        public int getPhotosPerWidth()
-        {
-            return photosPerWidth;
-        }
-
-        public int getPhotosPerScreen()
-        {
-            return photosPerHeight*photosPerWidth;
-        }
-
-        public void switchPlaces()
-        {
-            int temp = photosPerHeight;
-            photosPerHeight = photosPerWidth;
-            photosPerWidth = temp;
-        }
 
     }
-
 
 
     @Override
@@ -260,12 +215,56 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
         super.onSaveInstanceState(outState);
         outState.putStringArrayList("savedUriParameters", uriParameters);
         outState.putSerializable("savedPhotoList", (Serializable) mPhotoList);
-        mPhotosPerScreen.switchPlaces();
-        outState.putSerializable("savedPhotosPerScreen", mPhotosPerScreen);
-        Log.v(LOG_TAG, "PhotoListSize " +mPhotoList.size());
+
+        outState.putSerializable("savedPhotosPerScreen", (Serializable) mPhotosPerScreen);
+        Log.v(LOG_TAG, "PhotoListSize " + mPhotoList.size());
 
 
     }
+
+    private int resolveIntent()
+    {
+        Bundle extras = getIntent().getExtras();
+        Log.v(LOG_TAG, "inside resolve");
+
+
+        if (extras != null) // if the application launched by intent from custom Uri
+        {
+            String id = extras.getString("UniqueId");
+            Log.v(LOG_TAG, "gotExtras " + id);
+
+            if (id.equals(MainActivity.MY_INTENT))
+            {
+                uriParameters = Uri500BuildHelper.createDefaultParamList();
+                return -1;
+            }
+            else if (id.equals(CustomUriGeneratorActivity.MY_INTENT))
+            {
+                Log.v(LOG_TAG, CustomUriGeneratorActivity.MY_INTENT);
+                uriParameters = extras.getStringArrayList("uriParameters");
+                return -1;
+            }
+            else if (id.equals(PhotoDetailActivity.MY_INTENT))
+            {
+                uriParameters = extras.getStringArrayList("savedUriParameters");
+               // previousTotal = extras.getInt("savedPreviousTotal");
+                mPhotoList = (ArrayList<Photo>) extras.getSerializable("savedPhotoList");
+                mPhotosPerScreen = (PhotosPerScreen) extras.getSerializable("savedPhotosPerScreen");
+                //Log.v(LOG_TAG, "should be here " + (uriParameters == null));
+                return extras.getInt("savedAdapterPosition");
+
+            }
+        }
+        return -1;
+
+
+    }
+
+
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu)
@@ -291,46 +290,5 @@ public class ViewPhotoThumbnailActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
-    public class ProcessPhotos extends Get500PxData
-    {
-        public ProcessPhotos (ArrayList<String> paramValues)
-        {
-            super(paramValues); // Created new URI and initialized rawUrl
-        }
-
-        public void execute()
-        {
-            //super.execute();
-
-            ProcessData processData = new ProcessData();
-            processData.execute(); // run in Backround of raw data downloaded data
-        }
-
- /*       public void addPhotos(ArrayList<String> paramValues)
-        {
-            super.addPhotos(paramValues);
-        }
-*/
-        public class ProcessData extends Download500PxData
-        {
-            protected void onPostExecute(String webData)
-            {
-                super.onPostExecute(webData);
-                Log.v(LOG_TAG, Integer.toString(getPhotos().size()));
-                if (mPhotoList == null)
-                {
-                    mPhotoList = getPhotos();
-                }
-                else
-                    mPhotoList.addAll(mPhotoList.size(), getPhotos());
-
-                px500RecyclerViewAdapter.loadNewData(mPhotoList);
-
-
-            }
-        }
-
-    }
-
 }
+

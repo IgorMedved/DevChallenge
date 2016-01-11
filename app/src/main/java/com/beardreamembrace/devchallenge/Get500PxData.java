@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Created by Admin User on 9/24/2015.
@@ -20,7 +20,7 @@ import java.util.List;
 public class Get500PxData extends GetRawData
 {
     private String LOG_TAG = Get500PxData.class.getSimpleName();
-    private List<Photo> mPhotos;
+    private ArrayList<Photo> mPhotos;
     protected Uri mDestinationUri;
     //private int currentPageNumber;
 
@@ -61,7 +61,7 @@ public class Get500PxData extends GetRawData
         return mDestinationUri != null;
     }
 
-    public List<Photo> getPhotos ()
+    public ArrayList<Photo> getPhotos ()
     {
         return mPhotos;
     }
@@ -82,7 +82,7 @@ public class Get500PxData extends GetRawData
         final String PX500_PHOTO_ID = "id";
         final String PX500_IMAGES = "images";
         final String PX500_CROP_SIZE = "size";
-        final String PX500_IMAGE = "image_url";
+        final String PX500_IMAGE = "url";
         final String PX500_PHOTO_WIDTH = "width";
         final String PX500_PHOTO_HEIGHT = "height";
 
@@ -99,25 +99,50 @@ public class Get500PxData extends GetRawData
                 String title = jsonPhoto.getString(PX500_TITLE);
                 String userId = jsonPhoto.getString(PX500_USER_ID);
                 String id = jsonPhoto.getString(PX500_PHOTO_ID);
-                String image = jsonPhoto.getString(PX500_IMAGE);
+                //String image = jsonPhoto.getString(PX500_IMAGE);
                 String width = jsonPhoto.getString(PX500_PHOTO_WIDTH);
                 String height = jsonPhoto.getString(PX500_PHOTO_HEIGHT);
 
                 JSONObject jsonUser = jsonPhoto.getJSONObject(PX500_USER);
                 String author = jsonUser.getString(PX500_AUTHOR);
 
-                JSONArray imagesArray = jsonPhoto.getJSONArray (PX500_IMAGES);
-                JSONObject jsonImage = imagesArray.getJSONObject(0);
-                String cropSize = jsonImage.getString(PX500_CROP_SIZE);
+                JSONArray imagesArray = jsonPhoto.getJSONArray(PX500_IMAGES);
+
+                HashMap<String,String> images = new HashMap<>();
+                String croppedImage ="";
+                String cropSize = "";
+
+                for (int j = 0; j < imagesArray.length(); j++)
+                {
+                    JSONObject jsonImage = imagesArray.getJSONObject(j);
+                    String imageSize = jsonImage.getString(PX500_CROP_SIZE);
+                    String image = jsonImage.getString(PX500_IMAGE);
+
+                   // Log.v (LOG_TAG, "imageSize " + imageSize + " image " + image );
+
+
+                    if (Photo.isCroppedSize(imageSize))
+                    {
+                        croppedImage = image;
+                        cropSize = imageSize;
+                    }
+                    else
+                    {
+                        images.put(imageSize, image);
+                     //   Log.v (LOG_TAG, "image " + image + " crop size " + imageSize );
+                    }
+
+
+                }
 
 
 
-                Photo photoObject  = new Photo (title, author, userId, id, image, cropSize, width, height);
+                Photo photoObject  = new Photo (title, author, userId, id, croppedImage, cropSize, width, height, images);
 
                 this.mPhotos.add(photoObject);
 
                 //  Log.v(LOG_TAG, "I am here " + i);
-                //  Log.v(LOG_TAG,mPhotos.toString());
+                 // Log.v(LOG_TAG,mPhotos.get(i).toString());
 
             }
             for (Photo singlePhoto: mPhotos)

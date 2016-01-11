@@ -17,6 +17,8 @@ import java.util.List;
 public class CustomUriGeneratorActivity extends AppCompatActivity
 {
     private static String LOG_TAG = CustomUriGeneratorActivity.class.getSimpleName();
+    public static String MY_INTENT = CustomUriGeneratorActivity.class.getSimpleName();
+
     private List<Px500InputInterfaceCell> mCellList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private Px500UriSelectorRecyclerViewAdapter mPx500UriSelectorRecyclerViewAdapter;
@@ -64,6 +66,7 @@ public class CustomUriGeneratorActivity extends AppCompatActivity
 
                 Intent intent = new Intent(CustomUriGeneratorActivity.this, ViewPhotoThumbnailActivity.class);
                 intent.putStringArrayListExtra("uriParameters", uriParameters);
+                intent.putExtra ("UniqueId", MY_INTENT);
                 startActivity(intent);
             }
         });

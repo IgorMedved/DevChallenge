@@ -15,15 +15,21 @@ import java.util.List;
 /**
  * Created by Admin User on 9/29/2015.
  */
-public class Px500RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+public class Px500RecyclerViewAdapter extends CustomAdapter implements Picasso.Listener
 {
-    private List<Photo> mPhotoList;
+    //private List<Photo> mPhotoList;
     private Context mContext;
 
-    public Px500RecyclerViewAdapter (Context mContext, List<Photo> mPhotoList)
+    public Px500RecyclerViewAdapter (Context mContext, CustomAdapter mAdapter)
     {
-        this.mPhotoList = mPhotoList;
+        this.mPhotoList = mAdapter.mPhotoList;
         this.mContext = mContext;
+    }
+
+    public Px500RecyclerViewAdapter (Context context, ArrayList<Photo> photoList)
+    {
+        this.mPhotoList = photoList;
+        mContext = context;
     }
 
     class Px500GridCellImageViewHolder extends RecyclerView.ViewHolder
@@ -37,7 +43,18 @@ public class Px500RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
             this.thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
 
 
+            thumbnail.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick (View v)
+                {
+                    ((ViewPhotoThumbnailActivity)mContext).launchIntent(getAdapterPosition());
 
+
+
+
+                }
+            });
 
         }
 
@@ -55,10 +72,25 @@ public class Px500RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     {
         Px500GridCellImageViewHolder px500GridCellImageViewHolder = (Px500GridCellImageViewHolder)viewHolder;
         Photo photoItem = mPhotoList.get(i);
-        Picasso.with(mContext).load(photoItem.getImage())
-               .error(R.drawable.placeholder)
+        Picasso picasso = new Picasso.Builder(mContext).listener(this).build();
+
+        if (((ViewPhotoThumbnailActivity)mContext).getSpanLookupList()== null)
+            picasso.load(photoItem.getImage())
+               //.error(R.drawable.placeholder)
                .placeholder(R.drawable.placeholder)
                .into(px500GridCellImageViewHolder.thumbnail);
+        else
+        {
+            int width = ((ViewPhotoThumbnailActivity) mContext).getSpanLookupList().get(i)
+                                                               .getWidth();
+            int height = ((ViewPhotoThumbnailActivity) mContext).getSpanLookupList().get(i)
+                                                                                   .getHeight();
+
+            picasso.load(photoItem.getImage())
+                   .resize(width, height)
+                   //.error(R.drawable.placeholder).placeholder(R.drawable.placeholder)
+                   .into(px500GridCellImageViewHolder.thumbnail);
+        }
 
 
 
@@ -75,11 +107,7 @@ public class Px500RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     }
 
-    public void loadNewData (List<Photo> newPhotos)
-    {
-        mPhotoList = newPhotos;
-        notifyDataSetChanged();
-    }
+
 
     // Add at the top of the list.
 
@@ -104,5 +132,25 @@ public class Px500RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     {
         return mPhotoList;
     }
+
+ /*   @Override
+    public void onImageLoadFailed (Picasso picasso, Uri uri, Exception exception)
+    {
+        Log.v(LOG_TAG, uri.toString());
+        exception.printStackTrace();
+
+        int position = findViewAdapterPositionByUri(uri);
+
+
+        ((ViewPhotoThumbnailActivity)mContext).
+
+            get
+        ImageView view = bindViewHolder();
+        getItemId()
+        picasso.cancelRequest(view);
+
+        picasso.load(R.drawable.placeholder).resize ()
+
+    }*/
 }
 

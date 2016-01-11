@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class Uri500BuildHelper
 {
 
+    final static String LOG_TAG = Uri500BuildHelper.class.getSimpleName();
     final static String PX500_API_BASE_URL = "https://api.500px.com/v1";
     final static String[] PX500_API_RESOURCES = {"/photos", "/upload", "/users", "/blogs", "/collections"};
     public enum paramTypes {NOTREQUIRED, REQUIRED, DEPENDENT };
@@ -47,7 +48,8 @@ public class Uri500BuildHelper
 
 
     private static Uri mDestinationUri;
-    private static final String CONSUMER_KEY = ConsumerKey.CONSUMERKEY;;
+    private static final String CONSUMER_KEY = ConsumerKey.CONSUMERKEY;
+
 
     public Uri500BuildHelper (ArrayList<String> paramValues)
 
@@ -63,8 +65,20 @@ public class Uri500BuildHelper
         for (int i = 0; i < PARAM_NAMES.length; i++)
         {
             Log.v("test", " " + i + " " + paramValues.get(i) + " " + (paramValues.get(i).equals( "") || paramValues.get(i).equals( "not used")));
-            if (isValidParameter(i, paramValues.get(i)))
-                myBuilder.appendQueryParameter(PARAM_NAMES[i], paramValues.get(i));
+            if (i!= 8)
+            {
+                if (isValidParameter(i, paramValues.get(i)))
+                    myBuilder.appendQueryParameter(PARAM_NAMES[i], paramValues.get(i));
+            }
+            else
+            {
+                ArrayList <String> imageSizes = getImageSizes(paramValues.get(i));
+                for (int j = 0; j < imageSizes.size();j++ )
+                {
+                    myBuilder.appendQueryParameter(PARAM_NAMES[i]+ "[]", imageSizes.get(j));
+                }
+            }
+
 
         }
 
@@ -74,6 +88,55 @@ public class Uri500BuildHelper
 
         mDestinationUri =myBuilder.build();
     }
+
+    public ArrayList<String> getImageSizes(String imageSize)
+    {
+        //DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+
+
+        ArrayList<String> imageSizes = new ArrayList<>();
+        imageSizes.add(imageSize);
+
+        for (int i = 0; i < IMAGE_SIZE_NAMES.length; i++)
+            if (!Photo.isCroppedSize(IMAGE_SIZE_NAMES[i] ))
+                imageSizes.add(IMAGE_SIZE_NAMES[i]);
+
+
+
+
+        return imageSizes;
+    }
+
+/*    public void getImageSize(ArrayList<String> imageSizes, int width, int height)
+    {
+        int dimension = width> height? width: height;
+
+        if (dimension <= 900)
+        {
+            imageSizes.add("30");
+            imageSizes.add("4");
+            imageSizes.add("1080");
+        }
+        else if (dimension <= 1080)
+        {
+            imageSizes.add("4");
+            imageSizes.add("1080");
+            imageSizes.add("5");
+        }
+        else if (dimension <= 1170)
+        {
+
+            imageSizes.add("1080");
+            imageSizes.add("5");
+            imageSizes.add("1600");
+        }
+        else
+        {
+            imageSizes.add("5");
+            imageSizes.add("1600");
+            imageSizes.add("2048");
+        }
+    }*/
 
     public static boolean isValidParameter(int position, String value)
     {
@@ -158,7 +221,7 @@ public class Uri500BuildHelper
 
 
 
-    //default contstructor
+    //default constructor
     private static String[] concatStringArray (String[] a, String[] b)
     {
         int cLen = a.length+b.length;

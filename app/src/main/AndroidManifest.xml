@@ -26,6 +26,11 @@
             android:name=".CustomUriGeneratorActivity"
             android:label="@string/title_activity_custom_uri_generator" >
         </activity>
+        <activity
+            android:name=".PhotoDetailActivity"
+            android:label="@string/title_activity_photo_detail"
+            android:theme = "@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
+        </activity>
     </application>
 
 </manifest>

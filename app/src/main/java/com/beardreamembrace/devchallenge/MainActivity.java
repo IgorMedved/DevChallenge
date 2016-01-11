@@ -8,9 +8,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity
+public class     MainActivity extends AppCompatActivity
 {
     private static final String LOG_TAG = "MainActivity";
+    public static final String MY_INTENT = MainActivity.class.getSimpleName();
 
 
     Button btnDefaultSearch;
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick (View v)
             {
                 Intent intent = new Intent (MainActivity.this, ViewPhotoThumbnailActivity.class);
-                startActivity (intent);
+                intent.putExtra ("UniqueId", MY_INTENT);
+                startActivity(intent);
 
             }
         });
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick (View v)
             {
                 Intent intent = new Intent (MainActivity.this, CustomUriGeneratorActivity.class);
+                intent.putExtra ("UniqueId", MY_INTENT);
                 startActivity (intent);
             }
         });
